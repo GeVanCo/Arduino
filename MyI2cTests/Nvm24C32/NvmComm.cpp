@@ -3,7 +3,7 @@
 #include <Wire.h>
 #include "Arduino.h"
 
-void callNvmWrite(int device, int addressHigh, int addressLow, int rndNumber) {
+void nvmWrite(int device, int addressHigh, int addressLow, int rndNumber) {
   uint8_t arr[2];
   arr[0] = addressHigh;
   arr[1] = addressLow;
@@ -17,7 +17,7 @@ void callNvmWrite(int device, int addressHigh, int addressLow, int rndNumber) {
   Wire.endTransmission();
 }
 
-int callNvmRead(int device, int addressHigh, int addressLow, int nrOfBytes) {
+int nvmRead(int device, int addressHigh, int addressLow, int nrOfBytes) {
 //  Wire.beginTransmission(device);
 //  Wire.write(addressHigh);
 //  Wire.write(addressLow);
@@ -27,6 +27,12 @@ int callNvmRead(int device, int addressHigh, int addressLow, int nrOfBytes) {
   // and it also passes the internal register address of the 24C32 NVM device
   Wire.requestFrom(device, nrOfBytes, (addressHigh << 8) | addressLow, 2, false);
   
+  return Wire.read();
+}
+
+int nvmReadCurrentAddress(int device) {
+  Wire.requestFrom(device, 1);
+
   return Wire.read();
 }
 

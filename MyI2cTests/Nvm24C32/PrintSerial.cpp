@@ -2,24 +2,30 @@
 
 #include "Arduino.h"
 
-char tbs[6];
+char printBuffer[6];
 
 void printWriteMessage(int rndNumber, int location) {
   Serial.print(" Written value       : ");
-  sprintf(tbs, "0x%02X", rndNumber);
-  Serial.print(tbs);
+  sprintf(printBuffer, "0x%02X", rndNumber);
+  Serial.print(printBuffer);
   Serial.print(" @ location ");
-  sprintf(tbs, "0x%02X", location);
-  Serial.print(tbs);
+  sprintf(printBuffer, "0x%02X", location);
+  Serial.print(printBuffer);
   Serial.println(" of the eeprom 24C32...");
 }
 
-void printReadMessage(int retVal, int location) {
+void printReadMessage(int value, int location) {
   Serial.print(" Read value from ");
-  sprintf(tbs, "0x%02X", location);
-  Serial.print(tbs);
+  sprintf(printBuffer, "0x%02X", location);
+  Serial.print(printBuffer);
   Serial.print(": ");
-  sprintf(tbs, "0x%02X", retVal);
-  Serial.println(tbs);
+  sprintf(printBuffer, "0x%02X", value);
+  Serial.println(printBuffer);
+}
+
+void printReadMessage(int value) {
+  Serial.print(" Read value: ");
+  sprintf(printBuffer, "0x%02X", value);
+  Serial.println(printBuffer);
 }
 
