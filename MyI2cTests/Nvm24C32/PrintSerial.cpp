@@ -4,6 +4,16 @@
 
 char printBuffer[6];
 
+void printLn() {
+  Serial.println("");
+}
+
+void printMessage(char *string, int value) {
+  Serial.print(string);
+  sprintf(printBuffer, "%d", value);
+  Serial.println(printBuffer);
+}
+
 void printWriteMessage(int rndNumber, int location) {
   Serial.print(" Written value       : ");
   sprintf(printBuffer, "0x%02X", rndNumber);

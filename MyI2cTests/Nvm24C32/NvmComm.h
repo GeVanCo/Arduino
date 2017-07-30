@@ -4,7 +4,8 @@
 #define NVM_COMM_H
 
 void nvmWrite(int device, int addressHigh, int addressLow, int rndNumber);
-int nvmRead(int device, int addressHigh, int addressLow, int nrOfBytes);
+int nvmRead(int device, int addressHigh, int addressLow);
+int nvmRead(int device, int addressHigh, int addressLow, int nrOfBytes, int *result);
 int nvmReadCurrentAddress(int device);
 
 #endif
