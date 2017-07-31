@@ -14,7 +14,7 @@ void printMessage(char *string, int value) {
   Serial.println(printBuffer);
 }
 
-void printWriteMessage(int rndNumber, int location) {
+void printWriteMessage(int location, int rndNumber) {
   Serial.print(" Written value       : ");
   sprintf(printBuffer, "0x%02X", rndNumber);
   Serial.print(printBuffer);
@@ -24,7 +24,7 @@ void printWriteMessage(int rndNumber, int location) {
   Serial.println(" of the eeprom 24C32...");
 }
 
-void printReadMessage(int value, int location) {
+void printReadMessage(int location, int value) {
   Serial.print(" Read value from ");
   sprintf(printBuffer, "0x%02X", location);
   Serial.print(printBuffer);

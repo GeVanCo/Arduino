@@ -42,13 +42,24 @@
 #include "PrintSerial.h"
 #include "Led.h"
 
-#define EEPROM 0x50
+#define NVM24C32 0x50
+#define PCA9548ADDR 0x70
+
 #define SOUND 0x00
 #define PICTURE 0x01
 #define TINT 0x02
 #define HUE 0x03
 #define CONTRAST 0x04
 #define BRIGHTNESS 0x05
+
+#define I2C_CHANNEL_SD0_SC0 0x01
+#define I2C_CHANNEL_SD1_SC1 0x02
+#define I2C_CHANNEL_SD2_SC2 0x04
+#define I2C_CHANNEL_SD3_SC3 0x08
+#define I2C_CHANNEL_SD4_SC4 0x10
+#define I2C_CHANNEL_SD5_SC5 0x20
+#define I2C_CHANNEL_SD6_SC6 0x40
+#define I2C_CHANNEL_SD7_SC7 0x80
 
 byte locationArray[6][2] {
   {SOUND, 0x00},
@@ -66,17 +77,21 @@ long randomFeature;
 int resultArray[64];
 
 void setup() {
+  delay(2000);
 	pinMode(ledPin, OUTPUT);
 	Wire.begin();
 	Serial.begin(115200);
 	Serial.println(" Hello there, goodday! ");
-	Serial.println(" Starting I2c communication ");
+	Serial.println(" Starting I2c communication using PCA9548 I2c switch");
+ 
+  selectI2cChannels(I2C_CHANNEL_SD7_SC7);
+
 	randomSeed(millis());
 }
 
 void loop() {
 	delay(1000);
-
+  
   blinkLed(ledPin);
 
   randomNumber = random(0, 256);
@@ -85,59 +100,69 @@ void loop() {
   // Here, only the first 6 locations are used for testing: 0x0000 to 0x0005
   // In every location a random number between 0 and 255 is written.
   randomNumber = random(0, 256);
-  nvmWrite(EEPROM, 0x00, 0x00, randomNumber);
-  printWriteMessage(randomNumber, 0);
+  nvmWrite(NVM24C32, 0x00, 0x00, randomNumber);
+  printWriteMessage(0, randomNumber);
   
   randomNumber = random(0, 256);
-  nvmWrite(EEPROM, 0x00, 0x01, randomNumber);
-  printWriteMessage(randomNumber, 1);
+  nvmWrite(NVM24C32, 0x00, 0x01, randomNumber);
+  printWriteMessage(1, randomNumber);
   
   randomNumber = random(0, 256);
-  nvmWrite(EEPROM, 0x00, 0x02, randomNumber);
-  printWriteMessage(randomNumber, 2);
+  nvmWrite(NVM24C32, 0x00, 0x02, randomNumber);
+  printWriteMessage(2, randomNumber);
   
   randomNumber = random(0, 256);
-  nvmWrite(EEPROM, 0x00, 0x03, randomNumber);
-  printWriteMessage(randomNumber, 3);
+  nvmWrite(NVM24C32, 0x00, 0x03, randomNumber);
+  printWriteMessage(3, randomNumber);
   
   randomNumber = random(0, 256);
-  nvmWrite(EEPROM, 0x00, 0x04, randomNumber);
-  printWriteMessage(randomNumber, 4);
+  nvmWrite(NVM24C32, 0x00, 0x04, randomNumber);
+  printWriteMessage(4, randomNumber);
   
   randomNumber = random(0, 256);
-  nvmWrite(EEPROM, 0x00, 0x05, randomNumber);
-  printWriteMessage(randomNumber, 5);
+  nvmWrite(NVM24C32, 0x00, 0x05, randomNumber);
+  printWriteMessage(5, randomNumber);
 
   // Here, the first 4 locations are read.  This means, after the last read the
   // "current address" (see further) is set to the next location, being 0x0004
-  epromValue = nvmRead(EEPROM, 0x00, 0x00);
-  printReadMessage(epromValue, 0);
+  epromValue = nvmRead(NVM24C32, 0x00, 0x00);
+  printReadMessage(0, epromValue);
   
-  epromValue = nvmRead(EEPROM, 0x00, 0x01);
-  printReadMessage(epromValue, 1);
+  epromValue = nvmRead(NVM24C32, 0x00, 0x01);
+  printReadMessage(1, epromValue);
   
-  epromValue = nvmRead(EEPROM, 0x00, 0x02);
-  printReadMessage(epromValue, 2);
+  epromValue = nvmRead(NVM24C32, 0x00, 0x02);
+  printReadMessage(2, epromValue);
   
-  epromValue = nvmRead(EEPROM, 0x00, 0x03);
-  printReadMessage(epromValue, 3);
+  epromValue = nvmRead(NVM24C32, 0x00, 0x03);
+  printReadMessage(3, epromValue);
 
   // This command will read the next location following the last location read or written.
   // If the last location read is x then the "current address" becomes location x + 1.
   // E.g. when the last location read or written is 0x0004, then nvmReadCurrentAddress() 
   // reads content of location 0x0005, NOT 0x0004, which is a bit misleading, if you ask me...
-  epromValue = nvmReadCurrentAddress(EEPROM);
+  epromValue = nvmReadCurrentAddress(NVM24C32);
   printReadMessage(epromValue);
 
   printLn();
-  printLn();
 
   // Here, a sequence of 5 bytes will be read
-  epromValue = nvmRead(EEPROM, 0x00, 0x00, 5, resultArray);
-  printMessage("Read eprom value: ", epromValue);
+  epromValue = nvmRead(NVM24C32, 0x00, 0x00, 6, resultArray);
+  printMessage(" Read eprom value: ", epromValue);
   
-  for (int i = 0; i < 5; i++) {
-    printMessage("ResultArray: ", resultArray[i]);
+  for (int i = 0; i < 6; i++) {
+    printReadMessage(i, resultArray[i]);
   }
+
+  printLn();
+  Serial.println("=============================");
+  printLn();
+}
+
+void selectI2cChannels(int channels) 
+{
+  Wire.beginTransmission(PCA9548ADDR);
+  Wire.write(channels);
+  Wire.endTransmission();  
 }
 
